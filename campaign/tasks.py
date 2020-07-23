@@ -1,11 +1,11 @@
 from celery import shared_task
-from .models import Campaign, Recipient, SentBox
+from .models import SentBox
 
-@shared_task
-def sent_to_sentbox(recipient):
+# @shared_task
+def sent_to_sentbox(campaign, number):
     sent_box = SentBox(
-        campaign=recipient.campaign,
-        recipient_number=recipient.recipient_number
+        campaign_id=campaign,
+        recipient_number=number
     )
 
     sent_box.save()

@@ -1,4 +1,3 @@
-import json
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -64,5 +63,5 @@ class SentToSentBoxView(APIView):
 
         recipient_list = Recipient.objects.filter(campaign__id=campaign_id)
         for recipient in recipient_list:
-            sent_to_sentbox.delay(recipient)
+            sent_to_sentbox(campaign_id, recipient.recipient_number)
         return Response({'msg': 'Message sending start'}, 200)
