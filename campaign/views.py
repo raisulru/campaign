@@ -1,9 +1,11 @@
+import json
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import Campaign, Recipient, SentBox
 from .serializers import CampaginSerializer, RecipientSerializer, SentBoxSerializer, CampaginWithRecipientSerializer
+from .tasks import sent_to_sentbox
 
 
 class CampaignViewSet(viewsets.ModelViewSet):
@@ -53,3 +55,14 @@ class CampaignWithRecipientPostView(APIView):
                 return Response(campaign_serializer.data, 201)
             return Response(campaign_serializer.errors, 400)
         return Response(serializer.errors, 400)
+
+
+class SentToSentBoxView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        campaign_id = kwargs.get('campaign_id')
+
+        recipient_list = Recipient.objects.filter(campaign__id=campaign_id)
+        for recipient in recipient_list:
+            sent_to_sentbox.delay(recipient)
+        return Response({'msg': 'Message sending start'}, 200)
